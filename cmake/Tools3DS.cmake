@@ -3,7 +3,7 @@
 #
 # add_shader_library(target input1 [input2 ...])
 #
-# /!\ Requires ASM to be enabled ( enable_language(ASM) or project(yourprojectname C CXX ASM)
+# /!\ Requires ASM to be enabled ( enable_language(ASM) or project(yourprojectname C CXX ASM) )
 #
 # Convert the shaders listed as input with the picasso assembler, and then creates a library containing the binary arrays of those shaders
 # You can then link the 'target' as you would do with any other library.
@@ -14,6 +14,33 @@
 ############################################################################
 get_filename_component(__tools3dsdir ${CMAKE_CURRENT_LIST_FILE} PATH) # Used to locate files to be used with configure_file
 
+##############
+## 3DSXTOOL ##
+##############
+if(NOT 3DSXTOOL)
+    message(STATUS "Looking for 3dsxtool...")
+    find_program(3DSXTOOL 3dsxtool ${DEVKITARM}/bin)
+    if(3DSXTOOL)
+        message(STATUS "3dsxtool: ${3DSXTOOL} - found")
+    else()
+        message(FATAL_ERROR "3dsxtool - not found")
+    endif()
+endif()
+
+
+##############
+## SMDHTOOL ##
+##############
+if(NOT SMDHTOOL)
+    message(STATUS "Looking for smdhtool...")
+    find_program(SMDHTOOL smdhtool ${DEVKITARM}/bin)
+    if(SMDHTOOL)
+        message(STATUS "smdhtool: ${SMDHTOOL} - found")
+    else()
+        message(FATAL_ERROR "smdhtool - not found")
+    endif()
+endif()
+
 #############
 ##  BIN2S  ##
 #############
@@ -22,10 +49,10 @@ if(NOT BIN2S)
     find_program(BIN2S bin2s ${DEVKITARM}/bin)
     if(BIN2S)
         message(STATUS "bin2s: ${BIN2S} - found")
-    else(BIN2S)
+    else()
         message(FATAL_ERROR "bin2s - not found")
-    endif(BIN2S)
-endif(NOT BIN2S)
+    endif()
+endif()
 
 #############
 ## PICASSO ##
@@ -41,7 +68,34 @@ if(NOT PICASSO_EXE)
 	endif()
 endif()
 
-function(generate_shbin OUTPUT INPUT)
+###############################
+###############################
+########    MACROS    #########
+###############################
+###############################
+
+
+###################
+### EXECUTABLES ###
+###################
+
+
+function(target_generate_3dsx target)
+    get_filename_component(target_we ${target} NAME_WE)
+    add_custom_command(TARGET ${target}
+                        POST_BUILD
+                        COMMAND ${3DSXTOOL} ${target} ${target_we}.3dsx
+                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endfunction()
+# todo : cia ?
+
+
+###################
+##### SHADERS #####
+###################
+
+macro(generate_shbin OUTPUT INPUT)
     if(SHADER_AS STREQUAL "picasso")
         add_custom_command(OUTPUT ${OUTPUT}
                             COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT}
@@ -51,7 +105,7 @@ function(generate_shbin OUTPUT INPUT)
     else()
         message(FATAL_ERROR "Please set SHADER_AS to 'picasso' or 'nihstro'.")
     endif()
-endfunction()
+endmacro()
 
 macro(add_shader_library libtarget)
     get_cmake_property(ENABLED_LANGUAGES ENABLED_LANGUAGES)

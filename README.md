@@ -23,6 +23,10 @@ You can use `find_package(CTRULIB)`. If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_
 
 This file must be include with `include(Tools3DS)`. It provides several macros related to 3DS development such as `add_shader_library` which assembles your shaders into a C library.
 
+### target_generate_3dsx
+
+Generates a .3dsx file from the target.
+
 ### add_shader_library(target input1 [input2 ...])
 
     /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)
@@ -54,3 +58,4 @@ A shader named vshader1.pica will generate the header vshader1_pica_shbin.h
     add_executable(hello_cmake ${SOURCE_FILES})
     target_link_libraries(hello_cmake shaders m ${LIBCTRU_LIBRARIES})
     target_include_directories(hello_cmake PUBLIC include ${LIBCTRU_INCLUDE_DIRS})
+	target_generate_3dsx(hello_cmake)
