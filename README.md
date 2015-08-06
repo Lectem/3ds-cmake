@@ -23,9 +23,18 @@ You can use `find_package(CTRULIB)`. If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_
 
 This file must be include with `include(Tools3DS)`. It provides several macros related to 3DS development such as `add_shader_library` which assembles your shaders into a C library.
 
-### target_generate_3dsx
+### add_3dsx_target(target [NO_SMDH])
 
-Generates a .3dsx file from the target.
+Adds a target that generates a .3dsx file from `target`. If NO_SMDH is specified, no .smdh file will be generated.
+
+* APP_TITLE is the name of the app stored in the SMDH file (Optional)
+* APP_DESCRIPTION is the description of the app stored in the SMDH file (Optional)
+* APP_AUTHOR is the author of the app stored in the SMDH file (Optional)
+* APP_ICON is the filename of the icon (.png), relative to the project folder.
+  If not set, it attempts to use one of the following (in this order):
+    - icon.png
+    - $(libctru folder)/default_icon.png
+
 
 ### add_shader_library(target input1 [input2 ...])
 
@@ -58,4 +67,5 @@ A shader named vshader1.pica will generate the header vshader1_pica_shbin.h
     add_executable(hello_cmake ${SOURCE_FILES})
     target_link_libraries(hello_cmake shaders m ${LIBCTRU_LIBRARIES})
     target_include_directories(hello_cmake PUBLIC include ${LIBCTRU_INCLUDE_DIRS})
-	target_generate_3dsx(hello_cmake)
+	
+	add_3dsx_target(hello_cmake)

@@ -41,6 +41,8 @@ if(NOT SMDHTOOL)
     endif()
 endif()
 
+
+
 #############
 ##  BIN2S  ##
 #############
@@ -80,14 +82,44 @@ endif()
 ###################
 
 
-function(target_generate_3dsx target)
+function(add_3dsx_target target)
     get_filename_component(target_we ${target} NAME_WE)
-    add_custom_command(TARGET ${target}
-                        POST_BUILD
-                        COMMAND ${3DSXTOOL} ${target} ${target_we}.3dsx
-                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
+    if(NOT (${ARGC} GREATER 1 AND "${ARGV1}" STREQUAL "NO_SMDH") )
+        if(NOT APP_TITLE)
+            set(APP_TITLE ${target})
+        endif()
+        if(NOT APP_DESCRIPTION)
+            set(APP_DESCRIPTION "Built with devkitARM & libctru")
+        endif()
+        if(NOT APP_AUTHOR)
+            set(APP_AUTHOR "Unspecified Author")
+        endif()
+        if(NOT APP_ICON)
+            if(CTRULIB)
+                set(APP_ICON ${CTRULIB}/default_icon.png)
+            elseif(EXISTS icon.png)
+                set(APP_ICON icon.png)
+            else()
+                message(FATAL_ERROR "No icon found ! Please use NO_SMDH or provide some icon.")
+            endif()
+        endif()
+        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx ${CMAKE_BINARY_DIR}/${target_we}.smdh
+                            COMMAND ${SMDHTOOL} --create '${APP_TITLE}' '${APP_DESCRIPTION}' '${APP_AUTHOR}' ${APP_ICON} ${CMAKE_BINARY_DIR}/${target_we}.smdh
+                            COMMAND ${3DSXTOOL} ${target} ${CMAKE_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_BINARY_DIR}/${target_we}.smdh
+                            DEPENDS ${target}
+        )
+    else()
+        message(STATUS "No smdh file will be generated")
+        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx
+                            COMMAND ${3DSXTOOL} ${target} ${target_we}.3dsx
+                            DEPENDS ${target}
+                            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+    endif()
+    add_custom_target(${target}_3dsx ALL SOURCES ${CMAKE_BINARY_DIR}/${target_we}.3dsx)
 endfunction()
+
+
 # todo : cia ?
 
 
@@ -128,7 +160,6 @@ macro(add_shader_library libtarget)
 
     # Generate the assembly file, and create the new target
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/shaders/shaders.s
-                        PRE_LINK
                         COMMAND ${BIN2S} ${__SHADERS_BIN_FILES} > ${CMAKE_BINARY_DIR}/shaders/shaders.s
                         DEPENDS ${__SHADERS_BIN_FILES}
                         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

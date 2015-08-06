@@ -34,3 +34,7 @@ find_package_handle_standard_args(CTRULIB  DEFAULT_MSG
                                   LIBCTRU_LIBRARY LIBCTRU_INCLUDE_DIR)
 
 mark_as_advanced(LIBCTRU_INCLUDE_DIR LIBCTRU_LIBRARY )
+if(CTRULIB_FOUND)
+    set(CTRULIB ${LIBCTRU_INCLUDE_DIR}/..)
+    message(STATUS "setting CTRULIB to ${CTRULIB}")
+endif()
