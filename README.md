@@ -10,6 +10,10 @@ Simply copy `DevkitArm3DS.cmake` and the `cmake` folder at the root of your proj
 Then start cmake with
 
     cmake -DCMAKE_TOOLCHAIN_FILE=DevkitArm3DS.cmake
+
+If you are on windows, I suggest using the `Unix Makefiles` generator.
+
+`cmake-gui` is also a good alternative, you can specify the toolchain file the first time you configure a build.
 	
 You can use the macros and find scripts of the `cmake` folder by adding the following line to your CMakeLists.cmake :
 
