@@ -1,17 +1,63 @@
 ############################################################################
 # Various macros for 3DS homebrews tools
 #
-# add_shader_library(target input1 [input2 ...])
+# add_3dsx_target
+# ^^^^^^^^^^^^^^^
 #
-# /!\ Requires ASM to be enabled ( enable_language(ASM) or project(yourprojectname C CXX ASM) )
+# This macro has two signatures :
 #
-# Convert the shaders listed as input with the picasso assembler, and then creates a library containing the binary arrays of those shaders
-# You can then link the 'target' as you would do with any other library.
-# Header files containing information about the arrays of binary data are then available for the target linking this library.
-# Those header use the same naming convention as devkitArm makefiles :
-# A shader named vshader1.pica will generate the header vshader1_pica_shbin.h
+# ## add_3dsx_target(target [NO_SMDH])
+#
+# Adds a target that generates a .3dsx file from `target`. If NO_SMDH is specified, no .smdh file will be generated.
+#
+# You can set the following variables to change the SMDH file :
+#
+# * APP_TITLE is the name of the app stored in the SMDH file (Optional)
+# * APP_DESCRIPTION is the description of the app stored in the SMDH file (Optional)
+# * APP_AUTHOR is the author of the app stored in the SMDH file (Optional)
+# * APP_ICON is the filename of the icon (.png), relative to the project folder.
+#   If not set, it attempts to use one of the following (in this order):
+#     - $(target).png
+#     - icon.png
+#     - $(libctru folder)/default_icon.png
+#
+# ## add_3dsx_target(target APP_TITLE APP_DESCRIPTION APP_AUTHOR [APP_ICON])
+#
+# This version will produce the SMDH with tha values passed as arguments. Tha APP_ICON is optional and follows the same rule as the other version of `add_3dsx_target`.
+#
+# add_binary_library(target input1 [input2 ...])
+# ^^^^^^^^^^^^^^^^^^
+#
+#    /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)
+#
+# Converts the files given as input to arrays of their binary data. This is useful to embed resources into your project.
+# For example, logo.bmp will generate the array `u8 logo_bmp[]` and its size `logo_bmp_size`. By linking this library, you
+# will also have access to a generated header file called `logo_bmp.h` which contains the declarations you need to use it.
+#
+#   Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended.
+#   For example 8x8.gas.tex would give the name _8x8_gas_tex.
+#
+# add_shbin(output input)
+# ^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Assembles the shader given as `input` into the file `output`. No file extension is added.
+#
+# generate_shbins(input1 [input2 ...])
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Assemble all the shader files given as input into .shbin files. Those will be located in the folder `shaders` of the build directory.
+#
+# add_shbin_library(target input1 [input2 ...])
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+#    /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)
+#
+# This is the same as calling generate_shbins and add_binary_library. This is the function to be used to reproduce devkitArm makefiles behaviour.
+# For example, add_shbin_library(shaders data/my1stshader.vsh.pica) will generate the target library `shaders` and you
+# will be able to use the shbin in your program by linking it, including `my1stshader_vsh_pica.h` and using `my1stshader_vsh_pica[]` and `my1stshader_vsh_pica_size`.
 #
 ############################################################################
+
 get_filename_component(__tools3dsdir ${CMAKE_CURRENT_LIST_FILE} PATH) # Used to locate files to be used with configure_file
 
 ##############
@@ -133,11 +179,46 @@ endfunction()
 # todo : cia ?
 
 
+######################
+### File embedding ###
+######################
+
+macro(add_binary_library libtarget)
+
+    get_cmake_property(ENABLED_LANGUAGES ENABLED_LANGUAGES)
+    if(NOT ENABLED_LANGUAGES MATCHES ".*ASM.*")
+        message(FATAL_ERROR "You have to enable ASM in order to use add_shader_library. Use enable_language(ASM). Currently enabled languages are ${ENABLED_LANGUAGES}")
+    endif()
+
+
+    foreach(__file ${ARGN})
+        get_filename_component(__file_wd ${__file} NAME)
+        string(REGEX REPLACE "^([0-9])" "_\\1" __BIN_FILE_NAME ${__file_wd}) # add '_' if the file name starts by a number
+        string(REGEX REPLACE "[-./]" "_" __BIN_FILE_NAME ${__BIN_FILE_NAME})
+
+        #Generate the header file
+        configure_file(${__tools3dsdir}/bin2s_header.h.in ${CMAKE_BINARY_DIR}/${libtarget}_include/${__BIN_FILE_NAME}.h)
+    endforeach()
+
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/binaries_asm)
+    # Generate the assembly file, and create the new target
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
+                        COMMAND ${BIN2S} ${ARGN} > ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
+                        DEPENDS ${ARGN}
+                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+
+    add_library(${libtarget} ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s)
+    target_include_directories(${libtarget} INTERFACE ${CMAKE_BINARY_DIR}/${libtarget}_include)
+endmacro()
+
+
+
 ###################
 ##### SHADERS #####
 ###################
 
-macro(generate_shbin OUTPUT INPUT)
+macro(add_shbin OUTPUT INPUT)
     if(SHADER_AS STREQUAL "picasso")
         add_custom_command(OUTPUT ${OUTPUT}
                             COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT}
@@ -149,32 +230,23 @@ macro(generate_shbin OUTPUT INPUT)
     endif()
 endmacro()
 
-macro(add_shader_library libtarget)
-    get_cmake_property(ENABLED_LANGUAGES ENABLED_LANGUAGES)
-    if(NOT ENABLED_LANGUAGES MATCHES ".*ASM.*")
-        message(FATAL_ERROR "You have to enable ASM in order to use add_shader_library. Use enable_language(ASM). Currently enabled languages are ${ENABLED_LANGUAGES}")
-    endif()
+function(generate_shbins)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
     foreach(__shader_file ${ARGN})
         get_filename_component(__shader_file_wd ${__shader_file} NAME)
-        string(REGEX REPLACE "^([0-9])" "_\\1" __BIN_FILE_NAME ${__shader_file_wd}) # add '_' if the file name starts by a number
-        string(REGEX REPLACE "[-./]" "_" __BIN_FILE_NAME ${__BIN_FILE_NAME})
-        set(__BIN_FILE_NAME ${__BIN_FILE_NAME}_shbin)
-
         #Generate the shbin file
         list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin)
-        generate_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin ${__shader_file})
-
-        #Generate the header file
-        configure_file(${__tools3dsdir}/bin2s_header.h.in ${CMAKE_BINARY_DIR}/shaders/${__BIN_FILE_NAME}.h)
+        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin ${__shader_file})
     endforeach()
+endfunction()
 
-    # Generate the assembly file, and create the new target
-    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/shaders/shaders.s
-                        COMMAND ${BIN2S} ${__SHADERS_BIN_FILES} > ${CMAKE_BINARY_DIR}/shaders/shaders.s
-                        DEPENDS ${__SHADERS_BIN_FILES}
-                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-
-    add_library(${libtarget} ${CMAKE_BINARY_DIR}/shaders/shaders.s)
-    target_include_directories(${libtarget} INTERFACE ${CMAKE_BINARY_DIR}/shaders )
-endmacro()
+function(add_shbin_library libtarget)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
+    foreach(__shader_file ${ARGN})
+        get_filename_component(__shader_file_wd ${__shader_file} NAME)
+        #Generate the shbin file
+        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin)
+        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin ${__shader_file})
+    endforeach()
+    add_binary_library(${libtarget} ${__SHADERS_BIN_FILES})
+endfunction()

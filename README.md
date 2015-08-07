@@ -27,7 +27,7 @@ This file must be include with `include(Tools3DS)`. It provides several macros r
 
 This macro has two signatures :
 
-####add_3dsx_target(target [NO_SMDH])
+#### add_3dsx_target(target [NO_SMDH])
 
 Adds a target that generates a .3dsx file from `target`. If NO_SMDH is specified, no .smdh file will be generated.
 
@@ -42,20 +42,36 @@ You can set the following variables to change the SMDH file :
     - icon.png
     - $(libctru folder)/default_icon.png
 
-####add_3dsx_target(target APP_TITLE APP_DESCRIPTION APP_AUTHOR [APP_ICON])
+#### add_3dsx_target(target APP_TITLE APP_DESCRIPTION APP_AUTHOR [APP_ICON])
 
 This version will produce the SMDH with tha values passed as arguments. Tha APP_ICON is optional and follows the same rule as the other version of `add_3dsx_target`.
 
-### add_shader_library(target input1 [input2 ...])
+### add_binary_library(target input1 [input2 ...])
 
     /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)
 
-Convert the shaders listed as input with the picasso assembler, and then creates a library containing the binary arrays of those shaders. This provides the same behaviour as the ctrulib makefiles.
-You can then link the `target` library as you would do with any other library.
+Converts the files given as input to arrays of their binary data. This is useful to embed resources into your project.
+For example, logo.bmp will generate the array `u8 logo_bmp[]` and its size `logo_bmp_size`. By linking this library, you 
+will also have access to a generated header file called `logo_bmp.h` which contains the declarations you need to use it.
 
-Header files containing information about the arrays of binary data are then available for the target linking this library.
-Those header use the same naming convention as devkitArm makefiles :
-A shader named vshader1.pica will generate the header vshader1_pica_shbin.h
+    Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended. 
+    For example 8x8.gas.tex would give the name _8x8_gas_tex.
+
+### add_shbin(output input)
+ 
+Assembles the shader given as `input` into the file `output`. No file extension is added.
+
+### generate_shbins(input1 [input2 ...])
+
+Assemble all the shader files given as input into .shbin files. Those will be located in the folder `shaders` of the build directory.
+
+### add_shbin_library(target input1 [input2 ...])
+
+    /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)
+
+This is the same as calling generate_shbins and add_binary_library. This is the function to be used to reproduce devkitArm makefiles behaviour.
+For example, add_shbin_library(shaders data/my1stshader.vsh.pica) will generate the target library `shaders` and you
+will be able to use the shbin in your program by linking it, including `my1stshader_vsh_pica.h` and using `my1stshader_vsh_pica[]` and `my1stshader_vsh_pica_size`.
 
 # Example of CMakeLists.txt using ctrulib and shaders
 
@@ -70,13 +86,13 @@ A shader named vshader1.pica will generate the header vshader1_pica_shbin.h
     file(GLOB_RECURSE SHADERS_FILES
         data/*.pica
     )
-    add_shader_library(shaders ${SHADERS_FILES})
+    add_shbin_library(shaders ${SHADERS_FILES})
     
     file(GLOB_RECURSE SOURCE_FILES
         source/*
     )
     add_executable(hello_cmake ${SOURCE_FILES})
-    target_link_libraries(hello_cmake shaders m ${LIBCTRU_LIBRARIES})
+    target_link_libraries(hello_cmake shaders ${LIBCTRU_LIBRARIES})
     target_include_directories(hello_cmake PUBLIC include ${LIBCTRU_INCLUDE_DIRS})
 	
 	add_3dsx_target(hello_cmake)
