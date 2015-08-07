@@ -57,9 +57,14 @@ will also have access to a generated header file called `logo_bmp.h` which conta
     Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended. 
     For example 8x8.gas.tex would give the name _8x8_gas_tex.
 
-### add_shbin(output input)
+### add_shbin(output input [entrypoint] [shader_type])
  
 Assembles the shader given as `input` into the file `output`. No file extension is added.
+You can choose the shader assembler by setting SHADER_AS to `picasso` or `nihstro`.
+
+If `nihstro` is set as the assembler, entrypoint and shader_type will be used.
+- entrypoint is set to `main` by default
+- shader_type can be either VSHADER or GSHADER. By default it is VSHADER. 
 
 ### generate_shbins(input1 [input2 ...])
 

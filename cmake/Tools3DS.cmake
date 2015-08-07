@@ -37,10 +37,15 @@
 #   Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended.
 #   For example 8x8.gas.tex would give the name _8x8_gas_tex.
 #
-# add_shbin(output input)
+# add_shbin(output input [entrypoint] [shader_type])
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Assembles the shader given as `input` into the file `output`. No file extension is added.
+# You can choose the shader assembler by setting SHADER_AS to `picasso` or `nihstro`.
+#
+# If `nihstro` is set as the assembler, entrypoint and shader_type will be used.
+# entrypoint is set to `main` by default
+# shader_type can be either VSHADER or GSHADER. By default it is VSHADER.
 #
 # generate_shbins(input1 [input2 ...])
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -112,7 +117,22 @@ if(NOT PICASSO_EXE)
 		message(STATUS "Picasso: ${PICASSO_EXE} - found")
 		set(SHADER_AS picasso CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
 	else()
-		message(FATAL_ERROR "Picasso: ${PICASSO} - not found")
+		message(FATAL_ERROR "Picasso - not found")
+	endif()
+endif()
+
+
+#############
+## NIHSTRO ##
+#############
+
+if(NOT NIHSTRO_AS)
+	message(STATUS "Looking for nihstro...")
+	find_program(NIHSTRO_AS nihstro ${DEVKITARM}/bin)
+	if(NIHSTRO_AS)
+		message(STATUS "nihstro: ${NIHSTRO_AS} - found")
+	else()
+		message(STATUS "nihstro - not found")
 	endif()
 endif()
 
@@ -176,7 +196,7 @@ function(add_3dsx_target target)
 endfunction()
 
 
-# todo : cia ?
+# todo : cia ? If someone can test and do it, please PR
 
 
 ######################
@@ -218,16 +238,42 @@ endmacro()
 ##### SHADERS #####
 ###################
 
-macro(add_shbin OUTPUT INPUT)
+macro(add_shbin OUTPUT INPUT )
+
     if(SHADER_AS STREQUAL "picasso")
-        add_custom_command(OUTPUT ${OUTPUT}
-                            COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT}
-        )
+
+        if(${ARGC} GREATER 2)
+            message(WARNING "Picasso doesn't support changing the entrypoint or shader type")
+        endif()
+        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT})
+
     elseif(SHADER_AS STREQUAL "nihstro")
-        message(FATAL_ERROR "nihstro not supported yet")
+        if(NOT NIHSTRO_AS)
+            message(SEND_ERROR "SHADER_AS is set to nihstro, but nihstro wasn't found. Please set NIHSTRO_AS.")
+        endif()
+        if(${ARGC} GREATER 2)
+            if(${ARGV2} EQUAL GSHADER)
+                set(SHADER_TYPE_FLAG "-g")
+            elseif(NOT ${ARGV2} EQUAL VSHADER)
+                set(_ENTRYPOINT ${ARGV2})
+            endif()
+        endif()
+        if(${ARGC} GREATER 3)
+            if(${ARGV2} EQUAL GSHADER)
+                set(SHADER_TYPE_FLAG "-g")
+            elseif(NOT ${ARGV3} EQUAL VSHADER)
+                set(_ENTRYPOINT ${ARGV3})
+            endif()
+        endif()
+        if(NOT _ENTRYPOINT)
+            set(_ENTRYPOINT "main")
+        endif()
+        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${NIHSTRO_AS} ${INPUT} -o ${OUTPUT} -e ${_ENTRYPOINT} ${SHADER_TYPE_FLAG})
+
     else()
         message(FATAL_ERROR "Please set SHADER_AS to 'picasso' or 'nihstro'.")
     endif()
+
 endmacro()
 
 function(generate_shbins)
