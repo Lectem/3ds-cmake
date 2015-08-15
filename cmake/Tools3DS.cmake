@@ -131,10 +131,13 @@ if(NOT NIHSTRO_AS)
 	find_program(NIHSTRO_AS nihstro ${DEVKITARM}/bin)
 	if(NIHSTRO_AS)
 		message(STATUS "nihstro: ${NIHSTRO_AS} - found")
+		set(SHADER_AS nihstro CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
 	else()
 		message(STATUS "nihstro - not found")
 	endif()
 endif()
+
+set(SHADER_AS picasso CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
 
 ###############################
 ###############################
