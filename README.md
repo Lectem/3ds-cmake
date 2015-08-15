@@ -73,6 +73,7 @@ If `nihstro` is set as the assembler, entrypoint and shader_type will be used.
 ### generate_shbins(input1 [input2 ...])
 
 Assemble all the shader files given as input into .shbin files. Those will be located in the folder `shaders` of the build directory.
+The names of the output files will be <name of input without longest extension>.shbin. `vshader.pica` will output `shader.shbin` but `shader.vertex.pica` will output `shader.shbin` too.
 
 ### add_shbin_library(target input1 [input2 ...])
 
@@ -80,7 +81,7 @@ Assemble all the shader files given as input into .shbin files. Those will be lo
 
 This is the same as calling generate_shbins and add_binary_library. This is the function to be used to reproduce devkitArm makefiles behaviour.
 For example, add_shbin_library(shaders data/my1stshader.vsh.pica) will generate the target library `shaders` and you
-will be able to use the shbin in your program by linking it, including `my1stshader_vsh_pica.h` and using `my1stshader_vsh_pica[]` and `my1stshader_vsh_pica_size`.
+will be able to use the shbin in your program by linking it, including `my1stshader_pica.h` and using `my1stshader_pica[]` and `my1stshader_pica_size`.
 
 # Example of CMakeLists.txt using ctrulib and shaders
 

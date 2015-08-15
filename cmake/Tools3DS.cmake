@@ -51,6 +51,7 @@
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Assemble all the shader files given as input into .shbin files. Those will be located in the folder `shaders` of the build directory.
+# The names of the output files will be <name of input without longest extension>.shbin. vshader.pica will output shader.shbin but shader.vertex.pica will output shader.shbin too.
 #
 # add_shbin_library(target input1 [input2 ...])
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -59,7 +60,7 @@
 #
 # This is the same as calling generate_shbins and add_binary_library. This is the function to be used to reproduce devkitArm makefiles behaviour.
 # For example, add_shbin_library(shaders data/my1stshader.vsh.pica) will generate the target library `shaders` and you
-# will be able to use the shbin in your program by linking it, including `my1stshader_vsh_pica.h` and using `my1stshader_vsh_pica[]` and `my1stshader_vsh_pica_size`.
+# will be able to use the shbin in your program by linking it, including `my1stshader_pica.h` and using `my1stshader_pica[]` and `my1stshader_pica_size`.
 #
 ############################################################################
 
@@ -287,20 +288,20 @@ endmacro()
 function(generate_shbins)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
     foreach(__shader_file ${ARGN})
-        get_filename_component(__shader_file_wd ${__shader_file} NAME)
+        get_filename_component(__shader_file_we ${__shader_file} NAME_WE)
         #Generate the shbin file
-        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin)
-        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin ${__shader_file})
+        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
+        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
     endforeach()
 endfunction()
 
 function(add_shbin_library libtarget)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
     foreach(__shader_file ${ARGN})
-        get_filename_component(__shader_file_wd ${__shader_file} NAME)
+        get_filename_component(__shader_file_we ${__shader_file} NAME_WE)
         #Generate the shbin file
-        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin)
-        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_wd}.shbin ${__shader_file})
+        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
+        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
     endforeach()
     add_binary_library(${libtarget} ${__SHADERS_BIN_FILES})
 endfunction()
