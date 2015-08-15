@@ -10,7 +10,7 @@ macro(msys_to_cmake_path MsysPath ResultingPath)
     string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:/" ${ResultingPath} "${MsysPath}")
 endmacro()
 
-if(NOT ${DEVKITPRO})
+if(NOT DEVKITPRO)
     msys_to_cmake_path("$ENV{DEVKITPRO}" DEVKITPRO)
 endif()
 

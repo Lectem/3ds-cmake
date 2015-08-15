@@ -1,5 +1,6 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR armv6k)
+set(3DS TRUE) # To be used for multiplatform projects
 
 # DevkitPro Paths are broken on windows, so we have to fix those
 macro(msys_to_cmake_path MsysPath ResultingPath)
