@@ -186,6 +186,7 @@ function(add_3dsx_target target)
                             COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_BINARY_DIR}/${target_we}.smdh
                             COMMAND ${3DSXTOOL} ${target} ${CMAKE_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_BINARY_DIR}/${target_we}.smdh
                             DEPENDS ${target}
+                            VERBATIM
         )
     else()
         message(STATUS "No smdh file will be generated")
