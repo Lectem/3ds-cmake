@@ -67,6 +67,11 @@
 # For example, add_shbin_library(shaders data/my1stshader.vsh.pica) will generate the target library `shaders` and you
 # will be able to use the shbin in your program by linking it, including `my1stshader_pica.h` and using `my1stshader_pica[]` and `my1stshader_pica_size`.
 #
+# target_embed_shader(target input1 [input2 ...])
+# ^^^^^^^^^^^^^^^^^
+#
+# Same as add_shbin_library(tempbinlib input1 [input2 ...]) + target_link_libraries(target tempbinlib)
+#
 ############################################################################
 
 if(NOT 3DS)
@@ -319,3 +324,13 @@ function(add_shbin_library libtarget)
     endforeach()
     add_binary_library(${libtarget} ${__SHADERS_BIN_FILES})
 endfunction()
+
+
+macro(target_embed_shader _target)
+    if(NOT ${ARGC} GREATER 1)
+        message(FATAL_ERROR "target_embed_shader : Argument error (no input files)")
+    endif()
+    get_filename_component(__1st_file_wd ${ARGV1} NAME)
+    add_shbin_library(__${_target}_embed_${__1st_file_wd} ${ARGN})
+    target_link_libraries(${_target} __${_target}_embed_${__1st_file_wd})
+endmacro()
