@@ -37,6 +37,11 @@
 #   Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended.
 #   For example 8x8.gas.tex would give the name _8x8_gas_tex.
 #
+# target_embed_file(target input1 [input2 ...])
+# ^^^^^^^^^^^^^^^^^
+#
+# Same as add_binary_library(tempbinlib input1 [input2 ...]) + target_link_libraries(target tempbinlib)
+#
 # add_shbin(output input [entrypoint] [shader_type])
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
@@ -213,7 +218,9 @@ endfunction()
 ######################
 
 macro(add_binary_library libtarget)
-
+    if(NOT ${ARGC} GREATER 1)
+        message(FATAL_ERROR "add_binary_library : Argument error (no input files)")
+    endif()
     get_cmake_property(ENABLED_LANGUAGES ENABLED_LANGUAGES)
     if(NOT ENABLED_LANGUAGES MATCHES ".*ASM.*")
         message(FATAL_ERROR "You have to enable ASM in order to use add_shader_library. Use enable_language(ASM). Currently enabled languages are ${ENABLED_LANGUAGES}")
@@ -241,7 +248,14 @@ macro(add_binary_library libtarget)
     target_include_directories(${libtarget} INTERFACE ${CMAKE_BINARY_DIR}/${libtarget}_include)
 endmacro()
 
-
+macro(target_embed_file _target)
+    if(NOT ${ARGC} GREATER 1)
+        message(FATAL_ERROR "target_embed_file : Argument error (no input files)")
+    endif()
+    get_filename_component(__1st_file_wd ${ARGV1} NAME)
+    add_binary_library(__${_target}_embed_${__1st_file_wd} ${ARGN})
+    target_link_libraries(${_target} __${_target}_embed_${__1st_file_wd})
+endmacro()
 
 ###################
 ##### SHADERS #####

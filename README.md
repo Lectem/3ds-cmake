@@ -61,6 +61,10 @@ will also have access to a generated header file called `logo_bmp.h` which conta
     Note : All dots in the filename are converted to `_`, and if it starts with a number, `_` will be prepended. 
     For example 8x8.gas.tex would give the name _8x8_gas_tex.
 
+### target_embed_file(target input1 [input2 ...])
+
+Same as add_binary_library(tempbinlib input1 [input2 ...]) + target_link_libraries(target tempbinlib)
+
 ### add_shbin(output input [entrypoint] [shader_type])
  
 Assembles the shader given as `input` into the file `output`. No file extension is added.
