@@ -130,9 +130,9 @@ if(NOT PICASSO_EXE)
     find_program(PICASSO_EXE picasso ${DEVKITARM}/bin)
     if(PICASSO_EXE)
         message(STATUS "Picasso: ${PICASSO_EXE} - found")
-        set(SHADER_AS picasso CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
+        set(SHADER_AS picasso CACHE STRING "The shader assembler to be used. Allowed values are 'none', 'picasso' or 'nihstro'")
     else()
-        message(WARNING "Picasso - not found")
+        message(STATUS "Picasso - not found")
     endif()
 endif()
 
@@ -146,13 +146,13 @@ if(NOT NIHSTRO_AS)
     find_program(NIHSTRO_AS nihstro ${DEVKITARM}/bin)
     if(NIHSTRO_AS)
         message(STATUS "nihstro: ${NIHSTRO_AS} - found")
-        set(SHADER_AS nihstro CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
+        set(SHADER_AS nihstro CACHE STRING "The shader assembler to be used. Allowed values are 'none', 'picasso' or 'nihstro'")
     else()
         message(STATUS "nihstro - not found")
     endif()
 endif()
 
-set(SHADER_AS picasso CACHE STRING "The shader assembler to be used. Allowed values are 'picasso' or 'nihstro'")
+set(SHADER_AS none CACHE STRING "The shader assembler to be used. Allowed values are 'none', 'picasso' or 'nihstro'")
 
 ###############################
 ###############################
@@ -299,7 +299,7 @@ macro(add_shbin OUTPUT INPUT )
         add_custom_command(OUTPUT ${OUTPUT} COMMAND ${NIHSTRO_AS} ${INPUT} -o ${OUTPUT} -e ${_ENTRYPOINT} ${SHADER_TYPE_FLAG} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
     else()
-        message(FATAL_ERROR "Please set SHADER_AS to 'picasso' or 'nihstro'.")
+        message(FATAL_ERROR "Please set SHADER_AS to 'picasso' or 'nihstro' if you use the shbin feature.")
     endif()
 
 endmacro()
