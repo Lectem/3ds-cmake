@@ -208,7 +208,7 @@ function(add_3dsx_target target)
         add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx
                             COMMAND ${3DSXTOOL} ${target} ${target_we}.3dsx
                             DEPENDS ${target}
-                            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         )
     endif()
     add_custom_target(${target}_3dsx ALL SOURCES ${CMAKE_BINARY_DIR}/${target_we}.3dsx)
@@ -246,7 +246,7 @@ macro(add_binary_library libtarget)
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
                         COMMAND ${BIN2S} ${ARGN} > ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
                         DEPENDS ${ARGN}
-                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     )
 
     add_library(${libtarget} ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s)
@@ -273,7 +273,7 @@ macro(add_shbin OUTPUT INPUT )
         if(${ARGC} GREATER 2)
             message(WARNING "Picasso doesn't support changing the entrypoint or shader type")
         endif()
-        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
     elseif(SHADER_AS STREQUAL "nihstro")
         if(NOT NIHSTRO_AS)
@@ -296,7 +296,7 @@ macro(add_shbin OUTPUT INPUT )
         if(NOT _ENTRYPOINT)
             set(_ENTRYPOINT "main")
         endif()
-        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${NIHSTRO_AS} ${INPUT} -o ${OUTPUT} -e ${_ENTRYPOINT} ${SHADER_TYPE_FLAG} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${NIHSTRO_AS} ${INPUT} -o ${OUTPUT} -e ${_ENTRYPOINT} ${SHADER_TYPE_FLAG} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
     else()
         message(FATAL_ERROR "Please set SHADER_AS to 'picasso' or 'nihstro'.")
