@@ -21,6 +21,20 @@ You can use the macros and find scripts of the `cmake` folder by adding the foll
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+## The toolchain file (DevkitArm3DS.cmake)
+
+### 3DS
+
+This CMake variable will be set so that you can test against it for projects that can be built on other platforms.
+
+### DKA_SUGGESTED_C_FLAGS
+
+This CMake variable is set to "-fomit-frame-pointer -ffast-math". Those are the recommended C flags for devkitArm projects but are non-mandatory.
+
+### DKA_SUGGESTED_CXX_FLAGS
+
+This CMake variable is set to "-fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11". Those are the recommended C++ flags for devkitArm projects but are non-mandatory.
+
 ## FindCTRULIB.cmake
 
 You can use `find_package(CTRULIB)`. If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_INCLUDE_DIRS` will be set.

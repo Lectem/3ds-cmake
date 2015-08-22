@@ -47,8 +47,10 @@ SET(DCMAKE_EXE_LINKER_FLAGS "-static")
 add_definitions(-DARM11 -D_3DS)
 
 set(ARCH "-march=armv6k -mtune=mpcore -mfloat-abi=hard ")
-set(CMAKE_C_FLAGS "-fomit-frame-pointer -ffast-math -mword-relocations ${ARCH}" CACHE STRING "C flags")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fno-rtti -fno-exceptions -std=gnu++11" CACHE STRING "CXX flags")
+set(CMAKE_C_FLAGS " -mword-relocations ${ARCH}" CACHE STRING "C flags")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "C++ flags")
+set(DKA_SUGGESTED_C_FLAGS "-fomit-frame-pointer -ffast-math")
+set(DKA_SUGGESTED_CXX_FLAGS "${DKA_SUGGESTED_C_FLAGS} -fno-rtti -fno-exceptions -std=gnu++11")
 set(CMAKE_EXE_LINKER_FLAGS "-specs=3dsx.specs ${ARCH}" CACHE STRING "linker flags")
 
 set(CMAKE_INSTALL_PREFIX ${DEVKITPRO}/portlibs/3ds
