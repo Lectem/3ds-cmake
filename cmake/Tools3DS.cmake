@@ -273,7 +273,7 @@ macro(add_shbin OUTPUT INPUT )
         if(${ARGC} GREATER 2)
             message(WARNING "Picasso doesn't support changing the entrypoint or shader type")
         endif()
-        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${PICASSO_EXE} ${OUTPUT} ${INPUT} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+        add_custom_command(OUTPUT ${OUTPUT} COMMAND ${PICASSO_EXE} -o ${OUTPUT} ${INPUT} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
     elseif(SHADER_AS STREQUAL "nihstro")
         if(NOT NIHSTRO_AS)
