@@ -41,7 +41,7 @@ You can use `find_package(CTRULIB)`. If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_
 
 ## Tools3DS.cmake
 
-This file must be include with `include(Tools3DS)`. It provides several macros related to 3DS development such as `add_shader_library` which assembles your shaders into a C library.
+This file must be included with `include(Tools3DS)`. It provides several macros related to 3DS development such as `add_shader_library` which assembles your shaders into a C library.
 
 ### add_3dsx_target
 
