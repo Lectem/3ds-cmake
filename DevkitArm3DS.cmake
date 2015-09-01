@@ -4,7 +4,11 @@ set(3DS TRUE) # To be used for multiplatform projects
 
 # DevkitPro Paths are broken on windows, so we have to fix those
 macro(msys_to_cmake_path MsysPath ResultingPath)
-    string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:/" ${ResultingPath} "${MsysPath}")
+	if(WIN32)
+		string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:/" ${ResultingPath} "${MsysPath}")
+	else()
+		set(${ResultingPath} "${MsysPath}")
+	endif()
 endmacro()
 
 msys_to_cmake_path("$ENV{DEVKITPRO}" DEVKITPRO)
