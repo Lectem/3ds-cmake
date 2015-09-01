@@ -28,6 +28,10 @@ else()
     CMAKE_FORCE_CXX_COMPILER("${DEVKITARM}/bin/arm-none-eabi-g++" GNU)
 endif()
 
+# You need the arm-none-eabi-gcc-* versions of ar and ranlib instead of arm-none-eabi- for LTO support in devkitARM
+string(REPLACE arm-none-eabi-ar arm-none-eabi-gcc-ar CMAKE_AR ${CMAKE_AR} )
+string(REPLACE arm-none-eabi-ranlib arm-none-eabi-gcc-ranlib CMAKE_RANLIB ${CMAKE_RANLIB} )
+
 set(WITH_PORTLIBS ON CACHE BOOL "use portlibs ?")
 
 if(WITH_PORTLIBS)
