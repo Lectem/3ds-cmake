@@ -25,16 +25,16 @@ include(CMakeForceCompiler)
 # Prefix detection only works with compiler id "GNU"
 # CMake will look for prefixed g++, cpp, ld, etc. automatically
 if(WIN32)
-    CMAKE_FORCE_C_COMPILER("${DEVKITARM}/bin/arm-none-eabi-gcc.exe" GNU)
-    CMAKE_FORCE_CXX_COMPILER("${DEVKITARM}/bin/arm-none-eabi-g++.exe" GNU)
+    set(CMAKE_C_COMPILER "${DEVKITARM}/bin/arm-none-eabi-gcc.exe")
+    set(CMAKE_CXX_COMPILER "${DEVKITARM}/bin/arm-none-eabi-g++.exe")
+    set(CMAKE_AR "${DEVKITARM}/bin/arm-none-eabi-gcc-ar.exe" CACHE STRING "")
+    set(CMAKE_RANLIB "${DEVKITARM}/bin/arm-none-eabi-gcc-ranlib.exe" CACHE STRING "")
 else()
-    CMAKE_FORCE_C_COMPILER("${DEVKITARM}/bin/arm-none-eabi-gcc" GNU)
-    CMAKE_FORCE_CXX_COMPILER("${DEVKITARM}/bin/arm-none-eabi-g++" GNU)
+    set(CMAKE_C_COMPILER "${DEVKITARM}/bin/arm-none-eabi-gcc")
+    set(CMAKE_CXX_COMPILER "${DEVKITARM}/bin/arm-none-eabi-g++")
+    set(CMAKE_AR "${DEVKITARM}/bin/arm-none-eabi-gcc-ar" CACHE STRING "")
+    set(CMAKE_RANLIB "${DEVKITARM}/bin/arm-none-eabi-gcc-ranlib" CACHE STRING "")
 endif()
-
-# You need the arm-none-eabi-gcc-* versions of ar and ranlib instead of arm-none-eabi- for LTO support in devkitARM
-string(REPLACE arm-none-eabi-ar arm-none-eabi-gcc-ar CMAKE_AR ${CMAKE_AR} )
-string(REPLACE arm-none-eabi-ranlib arm-none-eabi-gcc-ranlib CMAKE_RANLIB ${CMAKE_RANLIB} )
 
 set(WITH_PORTLIBS ON CACHE BOOL "use portlibs ?")
 
@@ -58,7 +58,6 @@ set(CMAKE_C_FLAGS " -mword-relocations ${ARCH}" CACHE STRING "C flags")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "C++ flags")
 set(DKA_SUGGESTED_C_FLAGS "-fomit-frame-pointer -ffast-math")
 set(DKA_SUGGESTED_CXX_FLAGS "${DKA_SUGGESTED_C_FLAGS} -fno-rtti -fno-exceptions -std=gnu++11")
-set(CMAKE_EXE_LINKER_FLAGS "-specs=3dsx.specs" CACHE STRING "linker flags")
 
 set(CMAKE_INSTALL_PREFIX ${DEVKITPRO}/portlibs/3ds
     CACHE PATH "Install libraries in the portlibs dir")
