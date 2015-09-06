@@ -80,11 +80,13 @@ endif()
 
 get_filename_component(__tools3dsdir ${CMAKE_CURRENT_LIST_FILE} PATH) # Used to locate files to be used with configure_file
 
+message(STATUS "Looking for 3ds tools...")
+
 ##############
 ## 3DSXTOOL ##
 ##############
 if(NOT _3DSXTOOL)
-    message(STATUS "Looking for 3dsxtool...")
+    # message(STATUS "Looking for 3dsxtool...")
     find_program(_3DSXTOOL 3dsxtool ${DEVKITARM}/bin)
     if(_3DSXTOOL)
         message(STATUS "3dsxtool: ${_3DSXTOOL} - found")
@@ -98,12 +100,55 @@ endif()
 ## SMDHTOOL ##
 ##############
 if(NOT SMDHTOOL)
-    message(STATUS "Looking for smdhtool...")
+    # message(STATUS "Looking for smdhtool...")
     find_program(SMDHTOOL smdhtool ${DEVKITARM}/bin)
     if(SMDHTOOL)
         message(STATUS "smdhtool: ${SMDHTOOL} - found")
     else()
         message(WARNING "smdhtool - not found")
+    endif()
+endif()
+
+################
+## BANNERTOOL ##
+################
+if(NOT BANNERTOOL)
+    # message(STATUS "Looking for bannertool...")
+    find_program(BANNERTOOL bannertool ${DEVKITARM}/bin)
+    if(BANNERTOOL)
+        message(STATUS "bannertool: ${BANNERTOOL} - found")
+    else()
+        message(WARNING "bannertool - not found")
+    endif()
+endif()
+
+set(FORCE_SMDHTOOL FALSE CACHE BOOL "Force the use of smdhtool instead of bannertool")
+
+#############
+## MAKEROM ##
+#############
+if(NOT MAKEROM)
+    # message(STATUS "Looking for makerom...")
+    find_program(MAKEROM makerom ${DEVKITARM}/bin)
+    if(MAKEROM)
+        message(STATUS "makerom: ${MAKEROM} - found")
+    else()
+        message(WARNING "makerom - not found")
+    endif()
+endif()
+
+
+
+#############
+##  STRIP  ##
+#############
+if(NOT STRIP)
+    # message(STATUS "Looking for strip...")
+    find_program(STRIP arm-none-eabi-strip ${DEVKITARM}/bin)
+    if(STRIP)
+        message(STATUS "strip: ${STRIP} - found")
+    else()
+        message(WARNING "strip - not found")
     endif()
 endif()
 
@@ -113,7 +158,7 @@ endif()
 ##  BIN2S  ##
 #############
 if(NOT BIN2S)
-    message(STATUS "Looking for bin2s...")
+    # message(STATUS "Looking for bin2s...")
     find_program(BIN2S bin2s ${DEVKITARM}/bin)
     if(BIN2S)
         message(STATUS "bin2s: ${BIN2S} - found")
@@ -126,7 +171,7 @@ endif()
 ## PICASSO ##
 #############
 if(NOT PICASSO_EXE)
-    message(STATUS "Looking for Picasso...")
+    # message(STATUS "Looking for Picasso...")
     find_program(PICASSO_EXE picasso ${DEVKITARM}/bin)
     if(PICASSO_EXE)
         message(STATUS "Picasso: ${PICASSO_EXE} - found")
@@ -142,7 +187,7 @@ endif()
 #############
 
 if(NOT NIHSTRO_AS)
-    message(STATUS "Looking for nihstro...")
+    # message(STATUS "Looking for nihstro...")
     find_program(NIHSTRO_AS nihstro ${DEVKITARM}/bin)
     if(NIHSTRO_AS)
         message(STATUS "nihstro: ${NIHSTRO_AS} - found")
