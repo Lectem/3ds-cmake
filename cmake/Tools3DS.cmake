@@ -83,11 +83,11 @@ get_filename_component(__tools3dsdir ${CMAKE_CURRENT_LIST_FILE} PATH) # Used to 
 ##############
 ## 3DSXTOOL ##
 ##############
-if(NOT 3DSXTOOL)
+if(NOT _3DSXTOOL)
     message(STATUS "Looking for 3dsxtool...")
-    find_program(3DSXTOOL 3dsxtool ${DEVKITARM}/bin)
-    if(3DSXTOOL)
-        message(STATUS "3dsxtool: ${3DSXTOOL} - found")
+    find_program(_3DSXTOOL 3dsxtool ${DEVKITARM}/bin)
+    if(_3DSXTOOL)
+        message(STATUS "3dsxtool: ${_3DSXTOOL} - found")
     else()
         message(WARNING "3dsxtool - not found")
     endif()
@@ -199,19 +199,19 @@ function(add_3dsx_target target)
         endif()
         add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx ${CMAKE_BINARY_DIR}/${target_we}.smdh
                             COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_BINARY_DIR}/${target_we}.smdh
-                            COMMAND ${3DSXTOOL} ${target} ${CMAKE_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_BINARY_DIR}/${target_we}.smdh
+                            COMMAND ${_3DSXTOOL} ${target} ${CMAKE_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_BINARY_DIR}/${target_we}.smdh
                             DEPENDS ${target}
                             VERBATIM
         )
     else()
         message(STATUS "No smdh file will be generated")
         add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx
-                            COMMAND ${3DSXTOOL} ${target} ${target_we}.3dsx
+                            COMMAND ${_3DSXTOOL} ${target} ${target_we}.3dsx
                             DEPENDS ${target}
                             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         )
     endif()
-    add_custom_target(${target}_3dsx ALL SOURCES ${CMAKE_BINARY_DIR}/${target_we}.3dsx)
+    add_custom_target(${target_we}.3dsx ALL SOURCES ${CMAKE_BINARY_DIR}/${target_we}.3dsx)
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
 endfunction()
 
