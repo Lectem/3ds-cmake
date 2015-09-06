@@ -197,21 +197,21 @@ function(add_3dsx_target target)
                 message(FATAL_ERROR "No icon found ! Please use NO_SMDH or provide some icon.")
             endif()
         endif()
-        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx ${CMAKE_BINARY_DIR}/${target_we}.smdh
-                            COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_BINARY_DIR}/${target_we}.smdh
-                            COMMAND ${_3DSXTOOL} ${target} ${CMAKE_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_BINARY_DIR}/${target_we}.smdh
+        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
+                            COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
+                            COMMAND ${_3DSXTOOL} ${target} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
                             DEPENDS ${target}
                             VERBATIM
         )
     else()
         message(STATUS "No smdh file will be generated")
-        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${target_we}.3dsx
+        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx
                             COMMAND ${_3DSXTOOL} ${target} ${target_we}.3dsx
                             DEPENDS ${target}
                             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         )
     endif()
-    add_custom_target(${target_we}.3dsx ALL SOURCES ${CMAKE_BINARY_DIR}/${target_we}.3dsx)
+    add_custom_target(${target_we}.3dsx ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx)
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
 endfunction()
 
@@ -239,19 +239,19 @@ macro(add_binary_library libtarget)
         string(REGEX REPLACE "[-./]" "_" __BIN_FILE_NAME ${__BIN_FILE_NAME})
 
         #Generate the header file
-        configure_file(${__tools3dsdir}/bin2s_header.h.in ${CMAKE_BINARY_DIR}/${libtarget}_include/${__BIN_FILE_NAME}.h)
+        configure_file(${__tools3dsdir}/bin2s_header.h.in ${CMAKE_CURRENT_BINARY_DIR}/${libtarget}_include/${__BIN_FILE_NAME}.h)
     endforeach()
 
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/binaries_asm)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/binaries_asm)
     # Generate the assembly file, and create the new target
-    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
-                        COMMAND ${BIN2S} ${ARGN} > ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/binaries_asm/${libtarget}.s
+                        COMMAND ${BIN2S} ${ARGN} > ${CMAKE_CURRENT_BINARY_DIR}/binaries_asm/${libtarget}.s
                         DEPENDS ${ARGN}
                         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     )
 
-    add_library(${libtarget} ${CMAKE_BINARY_DIR}/binaries_asm/${libtarget}.s)
-    target_include_directories(${libtarget} INTERFACE ${CMAKE_BINARY_DIR}/${libtarget}_include)
+    add_library(${libtarget} ${CMAKE_CURRENT_BINARY_DIR}/binaries_asm/${libtarget}.s)
+    target_include_directories(${libtarget} INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/${libtarget}_include)
 endmacro()
 
 macro(target_embed_file _target)
@@ -306,22 +306,22 @@ macro(add_shbin OUTPUT INPUT )
 endmacro()
 
 function(generate_shbins)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders)
     foreach(__shader_file ${ARGN})
         get_filename_component(__shader_file_we ${__shader_file} NAME_WE)
         #Generate the shbin file
-        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
-        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
+        list(APPEND __SHADERS_BIN_FILES ${CMAKE_CURRENT_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
+        add_shbin(${CMAKE_CURRENT_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
     endforeach()
 endfunction()
 
 function(add_shbin_library libtarget)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders)
     foreach(__shader_file ${ARGN})
         get_filename_component(__shader_file_we ${__shader_file} NAME_WE)
         #Generate the shbin file
-        list(APPEND __SHADERS_BIN_FILES ${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
-        add_shbin(${CMAKE_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
+        list(APPEND __SHADERS_BIN_FILES ${CMAKE_CURRENT_BINARY_DIR}/shaders/${__shader_file_we}.shbin)
+        add_shbin(${CMAKE_CURRENT_BINARY_DIR}/shaders/${__shader_file_we}.shbin ${__shader_file})
     endforeach()
     add_binary_library(${libtarget} ${__SHADERS_BIN_FILES})
 endfunction()
