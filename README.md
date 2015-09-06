@@ -37,7 +37,19 @@ This CMake variable is set to `-fomit-frame-pointer -ffast-math -fno-rtti -fno-e
 
 ## FindCTRULIB.cmake
 
-You can use `find_package(CTRULIB)`. If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_INCLUDE_DIRS` will be set.
+You can use `find_package(CTRULIB)`.
+
+If found, `LIBCTRU_LIBRARIES` and `LIBCTRU_INCLUDE_DIRS` will be set.
+It also adds an imported target named `3ds::ctrulib`.
+Linking it is the same as target_link_libraries(target ${LIBCTRU_LIBRARIES}) and target_include_directories(target ${LIBCTRU_INCLUDE_DIRS})
+
+## FindSF2D.cmake
+
+You can use `find_package(SF2D)`.
+
+If found, `LIBSF2D_LIBRARIES` and `LIBSF2D_INCLUDE_DIRS` will be set.
+It also adds an imported target named `3ds::sf2d`.
+Linking it is the same as target_link_libraries(target ${LIBSF2D_LIBRARIES}) and target_include_directories(target ${LIBSF2D_INCLUDE_DIRS})
 
 ## Tools3DS.cmake
 

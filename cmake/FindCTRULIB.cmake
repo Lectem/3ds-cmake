@@ -3,7 +3,9 @@
 #  LIBCTRU_FOUND - System has ctrulib
 #  LIBCTRU_INCLUDE_DIRS - The ctrulib include directories
 #  LIBCTRU_LIBRARIES - The libraries needed to use ctrulib
-
+#
+# It also adds an imported target named `3ds::ctrulib`.
+# Linking it is the same as target_link_libraries(target ${LIBCTRU_LIBRARIES}) and target_include_directories(target ${LIBCTRU_INCLUDE_DIRS})
 
 # DevkitPro paths are broken on windows, so we have to fix those
 macro(msys_to_cmake_path MsysPath ResultingPath)
@@ -37,4 +39,10 @@ mark_as_advanced(LIBCTRU_INCLUDE_DIR LIBCTRU_LIBRARY )
 if(CTRULIB_FOUND)
     set(CTRULIB ${LIBCTRU_INCLUDE_DIR}/..)
     message(STATUS "setting CTRULIB to ${CTRULIB}")
+
+    add_library(3ds::ctrulib STATIC IMPORTED GLOBAL)
+    set_target_properties(3ds::ctrulib PROPERTIES
+        IMPORTED_LOCATION "${LIBCTRU_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${LIBCTRU_INCLUDE_DIR}"
+    )
 endif()
