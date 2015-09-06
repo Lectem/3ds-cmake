@@ -37,7 +37,7 @@ if(SF2D_FOUND)
     set(SF2D ${LIBSF2D_INCLUDE_DIR}/..)
     message(STATUS "setting SF2D to ${SF2D}")
 
-    add_library(3ds::sf2d STATIC IMPORTED)
+    add_library(3ds::sf2d STATIC IMPORTED GLOBAL)
     set_target_properties(3ds::sf2d PROPERTIES
         IMPORTED_LOCATION "${LIBSF2D_LIBRARY}"
         INTERFACE_INCLUDE_DIRECTORIES "${LIBSF2D_INCLUDE_DIR}"
