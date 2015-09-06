@@ -78,6 +78,14 @@ You can set the following variables to change the SMDH file :
 
 This version will produce the SMDH with tha values passed as arguments. Tha APP_ICON is optional and follows the same rule as the other version of `add_3dsx_target`.
 
+### add_cia_target(target RSF IMAGE SOUND [APP_TITLE APP_DESCRIPTION APP_AUTHOR [APP_ICON]])
+
+Same as add_3dsx_target but for CIA files.
+
+* RSF is the .rsf file to be given to makerom.
+* IMAGE is either a .png or a cgfximage file.
+* SOUND is either a .wav or a cwavaudio file.
+
 ### add_binary_library(target input1 [input2 ...])
 
     /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)

@@ -25,6 +25,16 @@
 #
 # This version will produce the SMDH with tha values passed as arguments. Tha APP_ICON is optional and follows the same rule as the other version of `add_3dsx_target`.
 #
+# add_cia_target(target RSF IMAGE SOUND [APP_TITLE APP_DESCRIPTION APP_AUTHOR [APP_ICON]])
+# ^^^^^^^^^^^^^^
+#
+# Same as add_3dsx_target but for CIA files.
+#
+# RSF is the .rsf file to be given to makerom.
+# IMAGE is either a .png or a cgfximage file.
+# SOUND is either a .wav or a cwavaudio file.
+#
+#
 # add_binary_library(target input1 [input2 ...])
 # ^^^^^^^^^^^^^^^^^^
 #
@@ -211,6 +221,20 @@ set(SHADER_AS none CACHE STRING "The shader assembler to be used. Allowed values
 ###################
 
 
+function(__add_smdh target APP_TITLE APP_DESCRIPTION APP_AUTHOR APP_ICON)
+    if(BANNERTOOL AND NOT FORCE_SMDHTOOL)
+        set(__SMDH_COMMAND ${BANNERTOOL} makesmdh -s ${APP_TITLE} -l ${APP_DESCRIPTION}  -p ${APP_AUTHOR} -i ${APP_ICON} -o ${CMAKE_CURRENT_BINARY_DIR}/${target})
+    else()
+        set(__SMDH_COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_CURRENT_BINARY_DIR}/${target})
+    endif()
+    add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target}
+                        COMMAND ${__SMDH_COMMAND}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                        DEPENDS ${APP_ICON}
+                        VERBATIM
+    )
+endfunction()
+
 function(add_3dsx_target target)
     get_filename_component(target_we ${target} NAME_WE)
     if((NOT (${ARGC} GREATER 1 AND "${ARGV1}" STREQUAL "NO_SMDH") ) OR (${ARGC} GREATER 3) )
@@ -242,27 +266,97 @@ function(add_3dsx_target target)
                 message(FATAL_ERROR "No icon found ! Please use NO_SMDH or provide some icon.")
             endif()
         endif()
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
-                            COMMAND ${SMDHTOOL} --create ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
-                            COMMAND ${_3DSXTOOL} ${target} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
-                            DEPENDS ${target}
+        if( NOT ${target_we}.smdh)
+            __add_smdh(${target_we}.smdh ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON})
+        endif()
+        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx
+                            COMMAND ${_3DSXTOOL} $<TARGET_FILE:${target}> ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx --smdh=${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
+                            DEPENDS ${target} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
                             VERBATIM
         )
     else()
         message(STATUS "No smdh file will be generated")
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx
-                            COMMAND ${_3DSXTOOL} ${target} ${target_we}.3dsx
+                            COMMAND ${_3DSXTOOL} $<TARGET_FILE:${target}> ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx
                             DEPENDS ${target}
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                            VERBATIM
         )
     endif()
-    add_custom_target(${target_we}.3dsx ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx)
+    add_custom_target(${target_we}_3dsx ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx)
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
 endfunction()
 
+function(__add_ncch_banner target IMAGE SOUND)
+    if(IMAGE MATCHES ".*\\.png$")
+        set(IMG_PARAM -i ${IMAGE})
+    else()
+        set(IMG_PARAM -ci ${IMAGE})
+    endif()
+    if(SOUND MATCHES ".*\\.wav$")
+        set(SND_PARAM -a ${SOUND})
+    else()
+        set(SND_PARAM -ca ${SOUND})
+    endif()
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target}
+                        COMMAND ${BANNERTOOL} makebanner -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${IMG_PARAM} ${SND_PARAM}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                        DEPENDS ${IMAGE} ${SOUND}
+                        VERBATIM
+    )
+endfunction()
 
-# todo : cia ? If someone can test and do it, please PR
+function(add_cia_target target RSF IMAGE SOUND )
+    get_filename_component(target_we ${target} NAME_WE)
+    if(${ARGC} GREATER 6)
+        set(APP_TITLE ${ARGV4})
+        set(APP_DESCRIPTION ${ARGV5})
+        set(APP_AUTHOR ${ARGV6})
+    endif()
+    if(${ARGC} EQUAL 8)
+        set(APP_ICON ${ARGV7})
+    endif()
+    if(NOT APP_TITLE)
+        set(APP_TITLE ${target})
+    endif()
+    if(NOT APP_DESCRIPTION)
+        set(APP_DESCRIPTION "Built with devkitARM & libctru")
+    endif()
+    if(NOT APP_AUTHOR)
+        set(APP_AUTHOR "Unspecified Author")
+    endif()
+    if(NOT APP_ICON)
+        if(EXISTS ${target}.png)
+            set(APP_ICON ${target}.png)
+        elseif(EXISTS icon.png)
+            set(APP_ICON icon.png)
+        elseif(CTRULIB)
+            set(APP_ICON ${CTRULIB}/default_icon.png)
+        else()
+            message(FATAL_ERROR "No icon found ! Please use NO_SMDH or provide some icon.")
+        endif()
+    endif()
+    if( NOT ${target_we}.smdh)
+        __add_smdh(${target_we}.smdh ${APP_TITLE} ${APP_DESCRIPTION} ${APP_AUTHOR} ${APP_ICON})
+    endif()
+    __add_ncch_banner(${target_we}.bnr ${IMAGE} ${SOUND})
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.cia
+                        COMMAND ${STRIP} -o $<TARGET_FILE:${target}>-stripped $<TARGET_FILE:${target}>
+                        COMMAND ${MAKEROM}     -f cia
+                                            -target t
+                                            -exefslogo
+                                            -o ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.cia
+                                            -elf $<TARGET_FILE:${target}>-stripped
+                                            -rsf ${RSF}
+                                            -banner ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.bnr
+                                            -icon ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
+                        DEPENDS ${target} ${RSF} ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.bnr ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.smdh
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                        VERBATIM
+    )
 
+    add_custom_target(${target_we}_cia ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.cia)
+    set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
+endfunction()
 
 ######################
 ### File embedding ###
