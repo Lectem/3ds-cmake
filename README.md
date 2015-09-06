@@ -86,6 +86,10 @@ Same as add_3dsx_target but for CIA files.
 * IMAGE is either a .png or a cgfximage file.
 * SOUND is either a .wav or a cwavaudio file.
 
+### add_netload_target(target FILE)
+
+Adds a `target` that sends `FILE` using the homebrew launcher netload system (3dslink).
+
 ### add_binary_library(target input1 [input2 ...])
 
     /!\ Requires ASM to be enabled ( `enable_language(ASM)` or `project(yourprojectname C CXX ASM)`)

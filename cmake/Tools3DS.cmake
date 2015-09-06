@@ -34,6 +34,10 @@
 # IMAGE is either a .png or a cgfximage file.
 # SOUND is either a .wav or a cwavaudio file.
 #
+# add_netload_target(target FILE)
+# ^^^^^^^^^^^^^^^^^^
+#
+# Adds a target that sends FILE using the homebrew launcher netload system (3dslink).
 #
 # add_binary_library(target input1 [input2 ...])
 # ^^^^^^^^^^^^^^^^^^
@@ -174,6 +178,19 @@ if(NOT BIN2S)
         message(STATUS "bin2s: ${BIN2S} - found")
     else()
         message(WARNING "bin2s - not found")
+    endif()
+endif()
+
+###############
+##  3DSLINK  ##
+###############
+if(NOT _3DSLINK)
+    # message(STATUS "Looking for 3dslink...")
+    find_program(_3DSLINK 3dslink ${DEVKITARM}/bin)
+    if(_3DSLINK)
+        message(STATUS "3dslink: ${_3DSLINK} - found")
+    else()
+        message(WARNING "3dslink - not found")
     endif()
 endif()
 
@@ -357,6 +374,17 @@ function(add_cia_target target RSF IMAGE SOUND )
     add_custom_target(${target_we}_cia ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.cia)
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
 endfunction()
+
+macro(add_netload_target target FILE)
+    set(NETLOAD_IP "" CACHE STRING "The ip address of the 3ds when using netload.")
+    if(NETLOAD_IP)
+        set(__NETLOAD_IP_OPTION -a ${NETLOAD_IP})
+    endif()
+    add_custom_target(${target}
+                    COMMAND ${_3DSLINK} ${FILE} ${__NETLOAD_IP_OPTION}
+                    DEPENDS ${FILE}
+    )
+endmacro()
 
 ######################
 ### File embedding ###
