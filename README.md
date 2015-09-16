@@ -88,7 +88,8 @@ Same as add_3dsx_target but for CIA files.
 
 ### add_netload_target(target FILE)
 
-Adds a `target` that sends `FILE` using the homebrew launcher netload system (3dslink).
+Adds a target `name` that sends a .3dsx using the homebrew launcher netload system (3dslink).
+* `target_or_file` is either the name of a target (on which you used add_3dsx_target) or a file name.
 
 ### add_binary_library(target input1 [input2 ...])
 
