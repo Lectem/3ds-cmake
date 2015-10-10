@@ -21,7 +21,6 @@ if(NOT IS_DIRECTORY ${DEVKITARM})
     message(FATAL_ERROR "Please set DEVKITARM in your environment")
 endif()
 
-include(CMakeForceCompiler)
 # Prefix detection only works with compiler id "GNU"
 # CMake will look for prefixed g++, cpp, ld, etc. automatically
 if(WIN32)
