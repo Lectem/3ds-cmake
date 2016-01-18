@@ -38,7 +38,7 @@ endif()
 set(WITH_PORTLIBS ON CACHE BOOL "use portlibs ?")
 
 if(WITH_PORTLIBS)
-    set(CMAKE_FIND_ROOT_PATH ${DEVKITARM} ${DEVKITPRO} ${DEVKITPRO}/portlibs/3ds)
+    set(CMAKE_FIND_ROOT_PATH ${DEVKITARM} ${DEVKITPRO} ${DEVKITPRO}/portlibs/3ds ${DEVKITPRO}/portlibs/armv6k)
 else()
     set(CMAKE_FIND_ROOT_PATH ${DEVKITARM} ${DEVKITPRO})
 endif()

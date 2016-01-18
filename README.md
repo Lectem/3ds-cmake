@@ -35,6 +35,10 @@ This CMake variable is set to `-fomit-frame-pointer -ffast-math`. Those are the 
 
 This CMake variable is set to `-fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11`. Those are the recommended C++ flags for devkitArm projects but are non-mandatory.
 
+### WITH_PORTLIBS
+
+By default the portlibs folder will be used, it can be disabled by changing the value of WITH_PORTLIBS to OFF from the cache (or forcing the value from your CMakeLists.txt).
+
 ## FindCTRULIB.cmake
 
 You can use `find_package(CTRULIB)`.
