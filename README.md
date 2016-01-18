@@ -1,4 +1,4 @@
-# 3ds-cmake [![Join the chat at https://gitter.im/Lectem/3dsdev](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Lectem/3dsdev)
+# 3ds-cmake
 
 
 
