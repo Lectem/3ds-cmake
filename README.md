@@ -155,7 +155,6 @@ Same as add_shbin_library(tempbinlib input1 [input2 ...]) + target_link_librarie
         source/*
     )
     add_executable(hello_cmake ${SOURCE_FILES})
-    target_link_libraries(hello_cmake shaders ${LIBCTRU_LIBRARIES})
-    target_include_directories(hello_cmake PUBLIC include ${LIBCTRU_INCLUDE_DIRS})
+    target_link_libraries(hello_cmake shaders 3ds::ctrulib)
 	
 	add_3dsx_target(hello_cmake)
