@@ -403,7 +403,7 @@ macro(add_binary_library libtarget)
     endif()
     get_cmake_property(ENABLED_LANGUAGES ENABLED_LANGUAGES)
     if(NOT ENABLED_LANGUAGES MATCHES ".*ASM.*")
-        message(FATAL_ERROR "You have to enable ASM in order to use add_shader_library. Use enable_language(ASM). Currently enabled languages are ${ENABLED_LANGUAGES}")
+        message(FATAL_ERROR "You have to enable ASM in order to use add_binary_library (or any target_embed_* which relies on it). Use enable_language(ASM) in your CMakeLists. Currently enabled languages are ${ENABLED_LANGUAGES}")
     endif()
 
 
